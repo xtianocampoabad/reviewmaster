@@ -1,12 +1,6 @@
 
 import * as XLSX from "xlsx";
-
-export interface Question {
-	question: string;
-	choices: string[];
-	answer: string;
-	category: string;
-}
+import type { Question } from "../types/question";
 
 export async function loadQuestions(): Promise<Question[]> {
 	const response = await fetch("/Engineer Christian Review Master.xlsx");
@@ -17,7 +11,7 @@ export async function loadQuestions(): Promise<Question[]> {
 
 	const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-	const rows = XLSX.utils.sheet_to_json<any>(sheet);
+	const rows = XLSX.utils.sheet_to_json<Record<string, string>>(sheet);
 
 	return rows.map((row) => ({
 		question: row.Question,

@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadQuestions, Question } from "../lib/excel";
+import { loadQuestions } from "../lib/excel";
+import type { Question } from "../types/question";
+import QuestionCard from "../components/QuestionCard";
+import AnswerButton from "../components/AnswerButton";
+import ScoreBoard from "../components/ScoreBoard";
+import useQuiz from "../hooks/useQuiz";
 
 export default function Home() {
+  const quiz = useQuiz();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
@@ -53,9 +59,7 @@ export default function Home() {
           Question {currentIndex + 1} of {questions.length}
         </p>
 
-        <h2 className="text-xl font-semibold mb-4">
-          {current.question}
-        </h2>
+        <QuestionCard question={current} />
 
         <div className="space-y-2">
 
@@ -84,14 +88,13 @@ export default function Home() {
             }
 
             return (
-              <button
-                key={index}
-                onClick={() => handleAnswer(letter)}
-                disabled={showResult}
-                className={`w-full p-4 rounded-lg text-white transition ${color}`}
-              >
-                {choice}
-              </button>
+              <AnswerButton
+  key={index}
+  text={choice}
+  color={color}
+  disabled={showResult}
+  onClick={() => handleAnswer(letter)}
+/>
             );
 
           })}
@@ -118,9 +121,10 @@ export default function Home() {
                   🎉 Review Finished!
                 </h2>
 
-                <p className="text-xl mt-4">
-                  Your Score: {score} / {questions.length}
-                </p>
+                <ScoreBoard
+  score={score}
+  total={questions.length}
+/>
 
               </div>
 
