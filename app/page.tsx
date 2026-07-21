@@ -1,53 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { loadQuestions } from "../lib/excel";
-import type { Question } from "../types/question";
+import useQuiz from "../hooks/useQuiz";
 import QuestionCard from "../components/QuestionCard";
 import AnswerButton from "../components/AnswerButton";
 import ScoreBoard from "../components/ScoreBoard";
-import useQuiz from "../hooks/useQuiz";
 
 export default function Home() {
-  const quiz = useQuiz();
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const [showResult, setShowResult] = useState(false);
-  const [score, setScore] = useState(0);
 
-  useEffect(() => {
-    loadQuestions().then(setQuestions);
-  }, []);
+    const quiz = useQuiz();
 
-  if (questions.length === 0) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold">Loading Questions...</h1>
-      </main>
-    );
-  }
-
-  const current = questions[currentIndex];
-
-  function handleAnswer(choice: string) {
-    if (showResult) return;
-
-    setSelectedAnswer(choice);
-    setShowResult(true);
-
-    if (choice === current.answer) {
-      setScore((prev) => prev + 1);
-    }
-  }
-
-  function nextQuestion() {
-    setCurrentIndex((prev) => prev + 1);
-    setSelectedAnswer("");
-    setShowResult(false);
-  }
-
+    if (quiz.questions.length === 0) {
   return (
+    <main className="min-h-screen flex items-center justify-center">
+      <h1 className="text-2xl font-bold">Loading Questions...</h1>
+    </main>
+  );
+}
+    return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-3xl w-full">
 
@@ -56,27 +25,27 @@ export default function Home() {
         </h1>
 
         <p className="text-gray-500 mb-2">
-          Question {currentIndex + 1} of {questions.length}
+          Question {quiz.currentIndex + 1} of {quiz.questions.length}
         </p>
 
-        <QuestionCard question={current} />
+        <QuestionCard question={quiz.current} />
 
         <div className="space-y-2">
 
-          {current.choices.map((choice, index) => {
+          {quiz.current.choices.map((choice, index) => {
 
             const letter = String.fromCharCode(65 + index);
 
             let color =
               "bg-blue-600 hover:bg-blue-700";
 
-            if (showResult) {
+            if (quiz.showResult) {
 
-              if (letter === current.answer) {
+              if (letter === quiz.current.answer) {
 
                 color = "bg-green-600";
 
-              } else if (letter === selectedAnswer) {
+              } else if (letter === quiz.selectedAnswer) {
 
                 color = "bg-red-600";
 
@@ -92,8 +61,8 @@ export default function Home() {
   key={index}
   text={choice}
   color={color}
-  disabled={showResult}
-  onClick={() => handleAnswer(letter)}
+  disabled={quiz.showResult}
+  onClick={() => quiz.handleAnswer(letter)}
 />
             );
 
@@ -101,13 +70,13 @@ export default function Home() {
 
         </div>
 
-        {showResult && (
+        {quiz.showResult && (
           <div className="mt-4 text-center">
 
-            {currentIndex < questions.length - 1 ? (
+            {quiz.currentIndex < quiz.questions.length - 1 ? (
 
               <button
-                onClick={nextQuestion}
+                onClick={quiz.nextQuestion}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
               >
                 Next Question →
@@ -122,8 +91,8 @@ export default function Home() {
                 </h2>
 
                 <ScoreBoard
-  score={score}
-  total={questions.length}
+  score={quiz.score}
+  total={quiz.questions.length}
 />
 
               </div>
